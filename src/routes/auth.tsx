@@ -53,7 +53,7 @@ function AuthPage() {
         if (signInError) throw signInError;
         router.navigate({ to: "/dashboard" });
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -72,7 +72,7 @@ function AuthPage() {
         },
       });
       if (error) throw error;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
