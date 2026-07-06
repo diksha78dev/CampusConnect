@@ -5,7 +5,10 @@ export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
       { title: "Settings — CampusConnect" },
-      { name: "description", content: "Manage your CampusConnect profile, notifications, and account." },
+      {
+        name: "description",
+        content: "Manage your CampusConnect profile, notifications, and account.",
+      },
     ],
   }),
   component: SettingsPage,
@@ -45,7 +48,15 @@ function SettingsPage() {
   );
 }
 
-function Panel({ title, tone = "bg-white", children }: { title: string; tone?: string; children: React.ReactNode }) {
+function Panel({
+  title,
+  tone = "bg-white",
+  children,
+}: {
+  title: string;
+  tone?: string;
+  children: React.ReactNode;
+}) {
   return (
     <section className={`neu-border ${tone} p-6`}>
       <h2 className="mb-4 border-b-2 border-black pb-3 text-xl font-bold">{title}</h2>

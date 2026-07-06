@@ -78,10 +78,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "CampusConnect — Community & event OS for college clubs" },
-      { name: "description", content: "Open-source community and event management platform for college clubs and tech communities. Run events, grow clubs, issue certificates." },
+      {
+        name: "description",
+        content:
+          "Open-source community and event management platform for college clubs and tech communities. Run events, grow clubs, issue certificates.",
+      },
       { name: "author", content: "CampusConnect" },
       { property: "og:title", content: "CampusConnect — Community & event OS for college clubs" },
-      { property: "og:description", content: "Open-source community and event management for college clubs and tech communities." },
+      {
+        property: "og:description",
+        content:
+          "Open-source community and event management for college clubs and tech communities.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@CampusConnect" },

@@ -44,12 +44,14 @@ function Dashboard() {
     queryFn: async () => {
       const { data } = await supabase
         .from("club_members")
-        .select(`
+        .select(
+          `
           role,
           clubs (
             id, name, slug
           )
-        `)
+        `,
+        )
         .eq("user_id", user?.id)
         .eq("status", "approved");
       return data || [];
@@ -63,13 +65,15 @@ function Dashboard() {
       // Fetch events the user has RSVP'd to that are in the future
       const { data } = await supabase
         .from("event_rsvps")
-        .select(`
+        .select(
+          `
           event_id,
           events (
             title, event_date,
             clubs (name)
           )
-        `)
+        `,
+        )
         .eq("user_id", user?.id)
         .gte("events.event_date", new Date().toISOString())
         .limit(3);
@@ -80,19 +84,30 @@ function Dashboard() {
 
   const colors = ["bg-lime", "bg-sky", "bg-peach"];
 
-  if (!user) return <SiteShell><div className="p-10 font-mono">Loading...</div></SiteShell>;
+  if (!user)
+    return (
+      <SiteShell>
+        <div className="p-10 font-mono">Loading...</div>
+      </SiteShell>
+    );
 
   return (
     <SiteShell>
       <section className="border-b-2 border-black bg-lime px-4 py-10 md:px-6">
         <div className="mx-auto max-w-7xl">
           <p className="eyebrow font-bold">Signed in as {user.email}</p>
-          <h1 className="mt-2 text-4xl font-bold md:text-5xl">Good morning, {profile?.full_name?.split(" ")[0] || "there"}.</h1>
+          <h1 className="mt-2 text-4xl font-bold md:text-5xl">
+            Good morning, {profile?.full_name?.split(" ")[0] || "there"}.
+          </h1>
         </div>
       </section>
       <section className="bg-cream px-4 py-10 md:px-6">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-3">
-          <Widget title="Upcoming events" cta={{ label: "All events", to: "/events" }} className="lg:col-span-2">
+          <Widget
+            title="Upcoming events"
+            cta={{ label: "All events", to: "/events" }}
+            className="lg:col-span-2"
+          >
             {upcomingEvents.length === 0 ? (
               <p className="py-4 font-mono text-sm text-gray-500">No upcoming events yet.</p>
             ) : (
@@ -102,16 +117,24 @@ function Dashboard() {
                   const c = e && !Array.isArray(e.clubs) ? e.clubs : null;
                   return (
                     <li key={r.event_id} className="flex items-center gap-4 py-4">
-                      <div className={`neu-border ${colors[i % colors.length]} shrink-0 px-3 py-2 text-center font-mono text-xs font-bold`}>
-                        {e?.event_date ? new Date(e.event_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase() : "TBA"}
+                      <div
+                        className={`neu-border ${colors[i % colors.length]} shrink-0 px-3 py-2 text-center font-mono text-xs font-bold`}
+                      >
+                        {e?.event_date
+                          ? new Date(e.event_date)
+                              .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                              .toUpperCase()
+                          : "TBA"}
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-display text-lg font-bold">{e?.title}</p>
                         <p className="font-mono text-xs">{c?.name}</p>
                       </div>
-                      <button className="neu-border shrink-0 bg-white px-3 py-1 font-mono text-xs font-bold uppercase">RSVP'd</button>
+                      <button className="neu-border shrink-0 bg-white px-3 py-1 font-mono text-xs font-bold uppercase">
+                        RSVP'd
+                      </button>
                     </li>
-                  )
+                  );
                 })}
               </ul>
             )}
@@ -124,14 +147,19 @@ function Dashboard() {
                 {userClubs.map((c) => {
                   const club = Array.isArray(c.clubs) ? c.clubs[0] : c.clubs;
                   return (
-                    <li key={club?.id} className="neu-border flex items-center justify-between bg-cream p-3">
+                    <li
+                      key={club?.id}
+                      className="neu-border flex items-center justify-between bg-cream p-3"
+                    >
                       <div>
                         <p className="font-display font-bold">
                           <Link to={`/clubs/${club?.slug}`}>{club?.name}</Link>
                         </p>
                         <p className="font-mono text-xs">Active</p>
                       </div>
-                      <span className="neu-border bg-lime px-2 py-1 font-mono text-[10px] font-bold uppercase">{c.role}</span>
+                      <span className="neu-border bg-lime px-2 py-1 font-mono text-[10px] font-bold uppercase">
+                        {c.role}
+                      </span>
                     </li>
                   );
                 })}

@@ -30,11 +30,13 @@ function ClubProfile() {
     queryFn: async () => {
       const { data } = await supabase
         .from("clubs")
-        .select(`
+        .select(
+          `
           id, name, slug, description,
           club_members (id, role, status, user_id, profiles (full_name)),
           events (id, title, event_date)
-        `)
+        `,
+        )
         .eq("slug", slug)
         .single();
       return data;
@@ -55,17 +57,32 @@ function ClubProfile() {
     },
   });
 
-  if (isLoading) return <SiteShell><div className="p-10 font-mono">Loading club...</div></SiteShell>;
-  if (!club) return <SiteShell><div className="p-10 font-mono">Club not found.</div></SiteShell>;
+  if (isLoading)
+    return (
+      <SiteShell>
+        <div className="p-10 font-mono">Loading club...</div>
+      </SiteShell>
+    );
+  if (!club)
+    return (
+      <SiteShell>
+        <div className="p-10 font-mono">Club not found.</div>
+      </SiteShell>
+    );
 
-  const members = Array.isArray(club.club_members) ? club.club_members.filter(m => m.status === 'approved') : [];
-  const memberNames = members.map(m => {
+  const members = Array.isArray(club.club_members)
+    ? club.club_members.filter((m) => m.status === "approved")
+    : [];
+  const memberNames = members.map((m) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles;
     return profile?.full_name || "Unknown User";
   });
-  
+
   const events = Array.isArray(club.events) ? club.events : [];
-  const membership = user && Array.isArray(club.club_members) ? club.club_members.find(m => m.user_id === user.id) : null;
+  const membership =
+    user && Array.isArray(club.club_members)
+      ? club.club_members.find((m) => m.user_id === user.id)
+      : null;
 
   return (
     <SiteShell>
@@ -75,15 +92,19 @@ function ClubProfile() {
           <h1 className="mt-2 text-5xl font-bold md:text-7xl">{club.name}</h1>
           <p className="mt-4 max-w-2xl font-mono text-sm md:text-base">{club.description}</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <button 
+            <button
               onClick={() => {
                 if (!user) return alert("Please sign in first");
                 joinMutation.mutate();
               }}
               disabled={!!membership || joinMutation.isPending}
-              className={`neu-border neu-press px-5 py-2 font-mono text-xs font-bold uppercase tracking-wider ${membership ? 'bg-gray-300 cursor-not-allowed' : 'bg-black text-cream'}`}
+              className={`neu-border neu-press px-5 py-2 font-mono text-xs font-bold uppercase tracking-wider ${membership ? "bg-gray-300 cursor-not-allowed" : "bg-black text-cream"}`}
             >
-              {membership ? (membership.status === 'pending' ? 'Request Pending' : 'Member ✓') : 'Join club'}
+              {membership
+                ? membership.status === "pending"
+                  ? "Request Pending"
+                  : "Member ✓"
+                : "Join club"}
             </button>
             <button className="neu-border neu-press bg-cream px-5 py-2 font-mono text-xs font-bold uppercase tracking-wider">
               Follow
@@ -102,7 +123,11 @@ function ClubProfile() {
                 {events.map((e) => (
                   <li key={e.id} className="flex items-center gap-4 py-4">
                     <div className="neu-border bg-sky px-3 py-2 font-mono text-xs font-bold">
-                      {e.event_date ? new Date(e.event_date).toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase() : "TBA"}
+                      {e.event_date
+                        ? new Date(e.event_date)
+                            .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            .toUpperCase()
+                        : "TBA"}
                     </div>
                     <p className="flex-1 font-display font-bold">{e.title}</p>
                   </li>
@@ -111,13 +136,17 @@ function ClubProfile() {
             )}
           </div>
           <div className="neu-border bg-white p-6">
-            <h2 className="mb-4 border-b-2 border-black pb-3 text-xl font-bold">Members · {members.length}</h2>
+            <h2 className="mb-4 border-b-2 border-black pb-3 text-xl font-bold">
+              Members · {members.length}
+            </h2>
             {memberNames.length === 0 ? (
               <p className="font-mono text-sm">No members yet.</p>
             ) : (
               <ul className="grid grid-cols-2 gap-2 font-mono text-sm">
                 {memberNames.map((m, i) => (
-                  <li key={i} className="neu-border bg-cream p-2 truncate" title={m}>{m}</li>
+                  <li key={i} className="neu-border bg-cream p-2 truncate" title={m}>
+                    {m}
+                  </li>
                 ))}
               </ul>
             )}

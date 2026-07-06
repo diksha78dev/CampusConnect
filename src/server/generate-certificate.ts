@@ -10,7 +10,10 @@ export const generateCertificate = createServerFn()
     const supabase = createServer();
 
     // 1. Verify user is logged in and matches userId
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
     if (authError || !user || user.id !== userId) {
       throw new Error("Unauthorized");
     }
@@ -21,7 +24,7 @@ export const generateCertificate = createServerFn()
       .select("title, event_date, clubs(name)")
       .eq("id", eventId)
       .single();
-    
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("full_name")
@@ -39,17 +42,38 @@ export const generateCertificate = createServerFn()
     const page = pdfDoc.addPage([600, 400]);
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
     const helveticaNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    
+
     page.drawText("Certificate of Participation", {
-      x: 100, y: 320, size: 30, font: helveticaFont, color: rgb(0, 0, 0)
+      x: 100,
+      y: 320,
+      size: 30,
+      font: helveticaFont,
+      color: rgb(0, 0, 0),
     });
     page.drawText(`This certifies that`, { x: 230, y: 270, size: 16, font: helveticaNormal });
-    page.drawText(profile.full_name || "Student", { x: 200, y: 230, size: 24, font: helveticaFont });
-    page.drawText(`has successfully participated in`, { x: 190, y: 190, size: 16, font: helveticaNormal });
+    page.drawText(profile.full_name || "Student", {
+      x: 200,
+      y: 230,
+      size: 24,
+      font: helveticaFont,
+    });
+    page.drawText(`has successfully participated in`, {
+      x: 190,
+      y: 190,
+      size: 16,
+      font: helveticaNormal,
+    });
     page.drawText(event.title, { x: 150, y: 150, size: 20, font: helveticaFont });
-    page.drawText(`Organized by ${clubName || 'CampusConnect'}`, { x: 200, y: 110, size: 14, font: helveticaNormal });
+    page.drawText(`Organized by ${clubName || "CampusConnect"}`, {
+      x: 200,
+      y: 110,
+      size: 14,
+      font: helveticaNormal,
+    });
 
-    const dateStr = event.event_date ? new Date(event.event_date).toLocaleDateString() : new Date().toLocaleDateString();
+    const dateStr = event.event_date
+      ? new Date(event.event_date).toLocaleDateString()
+      : new Date().toLocaleDateString();
     page.drawText(`Date: ${dateStr}`, { x: 250, y: 70, size: 12, font: helveticaNormal });
 
     const pdfBytes = await pdfDoc.save();
@@ -60,16 +84,14 @@ export const generateCertificate = createServerFn()
       .from("certificates")
       .upload(fileName, pdfBytes, {
         contentType: "application/pdf",
-        upsert: true
+        upsert: true,
       });
 
     if (uploadError) {
       throw new Error("Failed to upload certificate");
     }
 
-    const { data: publicUrlData } = supabase.storage
-      .from("certificates")
-      .getPublicUrl(fileName);
+    const { data: publicUrlData } = supabase.storage.from("certificates").getPublicUrl(fileName);
 
     // 5. Insert into certificates table
     const { data: insertData, error: insertError } = await supabase

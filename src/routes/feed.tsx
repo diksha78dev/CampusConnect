@@ -9,7 +9,10 @@ export const Route = createFileRoute("/feed")({
   head: () => ({
     meta: [
       { title: "Discussion feed — CampusConnect" },
-      { name: "description", content: "Announcements, discussions, and threads across your clubs." },
+      {
+        name: "description",
+        content: "Announcements, discussions, and threads across your clubs.",
+      },
     ],
   }),
   component: Feed,
@@ -33,9 +36,11 @@ function Feed() {
       if (!user) return [];
       const { data } = await supabase
         .from("club_members")
-        .select(`
+        .select(
+          `
           clubs (id, name)
-        `)
+        `,
+        )
         .eq("user_id", user.id)
         .eq("status", "approved");
       return data || [];
@@ -47,7 +52,9 @@ function Feed() {
 
   useEffect(() => {
     if (userClubs.length > 0 && !selectedClubId) {
-      const firstClub = Array.isArray(userClubs[0].clubs) ? userClubs[0].clubs[0] : userClubs[0].clubs;
+      const firstClub = Array.isArray(userClubs[0].clubs)
+        ? userClubs[0].clubs[0]
+        : userClubs[0].clubs;
       if (firstClub) setSelectedClubId(firstClub.id);
     }
   }, [userClubs, selectedClubId]);
@@ -57,12 +64,14 @@ function Feed() {
     queryFn: async () => {
       const { data } = await supabase
         .from("posts")
-        .select(`
+        .select(
+          `
           id, content, created_at,
           profiles (full_name),
           clubs (name),
           comments (id, content, created_at, profiles (full_name))
-        `)
+        `,
+        )
         .order("created_at", { ascending: false });
       return data || [];
     },
@@ -70,11 +79,12 @@ function Feed() {
 
   useEffect(() => {
     // Realtime subscriptions for posts and comments
-    const channel = supabase.channel('realtime_feed')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+    const channel = supabase
+      .channel("realtime_feed")
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, () => {
         queryClient.invalidateQueries({ queryKey: ["posts"] });
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => {
+      .on("postgres_changes", { event: "*", schema: "public", table: "comments" }, () => {
         queryClient.invalidateQueries({ queryKey: ["posts"] });
       })
       .subscribe();
@@ -99,27 +109,27 @@ function Feed() {
   });
 
   const commentMutation = useMutation({
-    mutationFn: async ({ postId, content }: { postId: string, content: string }) => {
+    mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
       if (!user) throw new Error("Must be logged in");
       await supabase.from("comments").insert({
         post_id: postId,
         author_id: user.id,
         content,
       });
-      setNewComments(prev => ({ ...prev, [postId]: "" }));
+      setNewComments((prev) => ({ ...prev, [postId]: "" }));
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["posts"] }),
   });
 
   const timeAgo = (dateString: string) => {
-    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+    const rtf = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
     const diff = new Date().getTime() - new Date(dateString).getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    if (days > 0) return rtf.format(-days, 'day');
+    if (days > 0) return rtf.format(-days, "day");
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    if (hours > 0) return rtf.format(-hours, 'hour');
+    if (hours > 0) return rtf.format(-hours, "hour");
     const minutes = Math.floor(diff / (1000 * 60));
-    return rtf.format(-Math.max(1, minutes), 'minute');
+    return rtf.format(-Math.max(1, minutes), "minute");
   };
 
   return (
@@ -135,24 +145,28 @@ function Feed() {
           <div className="neu-border bg-white p-4">
             <textarea
               value={newPost}
-              onChange={e => setNewPost(e.target.value)}
+              onChange={(e) => setNewPost(e.target.value)}
               placeholder="Post an update to your clubs..."
               rows={3}
               className="w-full resize-none border-0 bg-transparent font-mono text-sm outline-none"
             />
             <div className="mt-2 flex items-center justify-between border-t-2 border-black pt-3">
-              <select 
+              <select
                 value={selectedClubId}
-                onChange={e => setSelectedClubId(e.target.value)}
+                onChange={(e) => setSelectedClubId(e.target.value)}
                 className="font-mono text-xs outline-none bg-transparent"
               >
                 {userClubs.length === 0 && <option value="">No clubs joined</option>}
-                {userClubs.map(uc => {
+                {userClubs.map((uc) => {
                   const c = Array.isArray(uc.clubs) ? uc.clubs[0] : uc.clubs;
-                  return c ? <option key={c.id} value={c.id}>Posting to · {c.name}</option> : null;
+                  return c ? (
+                    <option key={c.id} value={c.id}>
+                      Posting to · {c.name}
+                    </option>
+                  ) : null;
                 })}
               </select>
-              <button 
+              <button
                 onClick={() => {
                   if (!user) return alert("Log in first");
                   if (newPost.trim()) postMutation.mutate();
@@ -166,54 +180,71 @@ function Feed() {
           </div>
           {isLoading ? (
             <div className="font-mono text-center py-10">Loading feed...</div>
-          ) : posts.map((p) => {
-            const author = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles;
-            const club = Array.isArray(p.clubs) ? p.clubs[0] : p.clubs;
-            const postComments = Array.isArray(p.comments) ? p.comments : [];
-            
-            return (
-              <article key={p.id} className="neu-border bg-white p-6">
-                <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b-2 border-black pb-3">
-                  <div>
-                    <p className="font-display text-lg font-bold">{author?.full_name || "Unknown User"}</p>
-                    <p className="font-mono text-xs">in {club?.name || "Unknown Club"} · {timeAgo(p.created_at)}</p>
-                  </div>
-                  <span className="neu-border bg-lime px-2 py-1 font-mono text-[10px] font-bold uppercase">Post</span>
-                </header>
-                <p className="mt-2 font-mono text-sm leading-relaxed whitespace-pre-wrap">{p.content}</p>
-                <div className="mt-4 space-y-3 border-t-2 border-black pt-4">
-                  {postComments.map((c: any) => {
-                    const cAuthor = Array.isArray(c.profiles) ? c.profiles[0] : c.profiles;
-                    return (
-                      <div key={c.id} className="neu-border bg-cream p-3">
-                        <div className="flex justify-between">
-                          <p className="font-mono text-xs font-bold uppercase">{cAuthor?.full_name || "Unknown User"}</p>
-                          <p className="font-mono text-[10px] text-gray-500">{timeAgo(c.created_at)}</p>
+          ) : (
+            posts.map((p) => {
+              const author = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles;
+              const club = Array.isArray(p.clubs) ? p.clubs[0] : p.clubs;
+              const postComments = Array.isArray(p.comments) ? p.comments : [];
+
+              return (
+                <article key={p.id} className="neu-border bg-white p-6">
+                  <header className="mb-3 flex flex-wrap items-baseline justify-between gap-2 border-b-2 border-black pb-3">
+                    <div>
+                      <p className="font-display text-lg font-bold">
+                        {author?.full_name || "Unknown User"}
+                      </p>
+                      <p className="font-mono text-xs">
+                        in {club?.name || "Unknown Club"} · {timeAgo(p.created_at)}
+                      </p>
+                    </div>
+                    <span className="neu-border bg-lime px-2 py-1 font-mono text-[10px] font-bold uppercase">
+                      Post
+                    </span>
+                  </header>
+                  <p className="mt-2 font-mono text-sm leading-relaxed whitespace-pre-wrap">
+                    {p.content}
+                  </p>
+                  <div className="mt-4 space-y-3 border-t-2 border-black pt-4">
+                    {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                    {postComments.map((c: any) => {
+                      const cAuthor = Array.isArray(c.profiles) ? c.profiles[0] : c.profiles;
+                      return (
+                        <div key={c.id} className="neu-border bg-cream p-3">
+                          <div className="flex justify-between">
+                            <p className="font-mono text-xs font-bold uppercase">
+                              {cAuthor?.full_name || "Unknown User"}
+                            </p>
+                            <p className="font-mono text-[10px] text-gray-500">
+                              {timeAgo(c.created_at)}
+                            </p>
+                          </div>
+                          <p className="mt-1 font-mono text-sm whitespace-pre-wrap">{c.content}</p>
                         </div>
-                        <p className="mt-1 font-mono text-sm whitespace-pre-wrap">{c.content}</p>
-                      </div>
-                    );
-                  })}
-                  <div className="flex gap-2">
-                    <input
-                      value={newComments[p.id] || ""}
-                      onChange={e => setNewComments(prev => ({ ...prev, [p.id]: e.target.value }))}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          if (!user) return alert("Log in first");
-                          const content = newComments[p.id];
-                          if (content?.trim()) commentMutation.mutate({ postId: p.id, content });
+                      );
+                    })}
+                    <div className="flex gap-2">
+                      <input
+                        value={newComments[p.id] || ""}
+                        onChange={(e) =>
+                          setNewComments((prev) => ({ ...prev, [p.id]: e.target.value }))
                         }
-                      }}
-                      placeholder="Reply..."
-                      className="neu-border w-full bg-white px-3 py-2 font-mono text-sm outline-none"
-                    />
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            if (!user) return alert("Log in first");
+                            const content = newComments[p.id];
+                            if (content?.trim()) commentMutation.mutate({ postId: p.id, content });
+                          }
+                        }}
+                        placeholder="Reply..."
+                        className="neu-border w-full bg-white px-3 py-2 font-mono text-sm outline-none"
+                      />
+                    </div>
                   </div>
-                </div>
-              </article>
-            );
-          })}
+                </article>
+              );
+            })
+          )}
         </div>
       </section>
     </SiteShell>

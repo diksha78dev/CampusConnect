@@ -7,7 +7,10 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — CampusConnect" },
-      { name: "description", content: "Sign in or create a CampusConnect account to run your college club." },
+      {
+        name: "description",
+        content: "Sign in or create a CampusConnect account to run your college club.",
+      },
     ],
   }),
   component: AuthPage,
@@ -50,6 +53,7 @@ function AuthPage() {
         if (signInError) throw signInError;
         router.navigate({ to: "/dashboard" });
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -68,6 +72,7 @@ function AuthPage() {
         },
       });
       if (error) throw error;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.message);
       setLoading(false);
@@ -85,21 +90,39 @@ function AuthPage() {
           CAMPUS<span className="bg-black px-1 text-cream">CONNECT</span>
         </Link>
         <div className="neu-border bg-white p-8">
-          <p className="eyebrow mb-2 font-bold">{mode === "signin" ? "Welcome back" : "Get started"}</p>
+          <p className="eyebrow mb-2 font-bold">
+            {mode === "signin" ? "Welcome back" : "Get started"}
+          </p>
           <h1 className="mb-6 text-3xl font-bold">
             {mode === "signin" ? "Sign in to CampusConnect" : "Create your account"}
           </h1>
           {error && (
-            <div className="mb-4 bg-red-100 p-2 font-mono text-sm text-red-700">
-              {error}
-            </div>
+            <div className="mb-4 bg-red-100 p-2 font-mono text-sm text-red-700">{error}</div>
           )}
           <form onSubmit={onSubmit} className="space-y-4">
             {mode === "signup" && (
-              <Field label="Full name" type="text" name="fullName" placeholder="Ada Lovelace" required />
+              <Field
+                label="Full name"
+                type="text"
+                name="fullName"
+                placeholder="Ada Lovelace"
+                required
+              />
             )}
-            <Field label="College email" type="email" name="email" placeholder="you@college.edu" required />
-            <Field label="Password" type="password" name="password" placeholder="********" required />
+            <Field
+              label="College email"
+              type="email"
+              name="email"
+              placeholder="you@college.edu"
+              required
+            />
+            <Field
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="********"
+              required
+            />
             <button
               type="submit"
               disabled={loading}
@@ -113,7 +136,7 @@ function AuthPage() {
             <span className="eyebrow font-bold">or</span>
             <div className="h-[2px] flex-1 bg-black" />
           </div>
-          <button 
+          <button
             onClick={handleGoogleSignIn}
             disabled={loading}
             className="neu-border neu-press w-full bg-white px-4 py-3 font-mono text-sm font-bold uppercase tracking-wider disabled:opacity-50"
@@ -139,7 +162,19 @@ function AuthPage() {
   );
 }
 
-function Field({ label, type, name, placeholder, required }: { label: string; type: string; name: string; placeholder: string; required?: boolean }) {
+function Field({
+  label,
+  type,
+  name,
+  placeholder,
+  required,
+}: {
+  label: string;
+  type: string;
+  name: string;
+  placeholder: string;
+  required?: boolean;
+}) {
   return (
     <label className="block">
       <span className="eyebrow mb-1 block font-bold">{label}</span>

@@ -8,7 +8,10 @@ export const Route = createFileRoute("/clubs/")({
   head: () => ({
     meta: [
       { title: "Club directory — CampusConnect" },
-      { name: "description", content: "Discover student clubs, tech communities, and societies on your campus." },
+      {
+        name: "description",
+        content: "Discover student clubs, tech communities, and societies on your campus.",
+      },
     ],
   }),
   component: ClubsIndex,
@@ -30,10 +33,11 @@ function ClubsIndex() {
   });
 
   const colors = ["bg-lime", "bg-sky", "bg-lavender", "bg-peach"];
-  
-  const filteredClubs = clubs.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase()) || 
-    (c.description || "").toLowerCase().includes(search.toLowerCase())
+
+  const filteredClubs = clubs.filter(
+    (c) =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.description || "").toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -54,27 +58,31 @@ function ClubsIndex() {
         <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-2 lg:grid-cols-3">
           {isLoading ? (
             <div className="col-span-full font-mono py-10">Loading clubs...</div>
-          ) : filteredClubs.map((c, index) => {
-            const members = Array.isArray(c.club_members) ? c.club_members.length : 0;
-            return (
-              <Link
-                key={c.slug}
-                to="/clubs/$slug"
-                params={{ slug: c.slug }}
-                className="neu-border neu-press block bg-white p-6"
-              >
-                <div className={`neu-border ${colors[index % colors.length]} mb-4 inline-block px-3 py-1 font-mono text-xs font-bold uppercase`}>
-                  Club
-                </div>
-                <h2 className="text-2xl font-bold">{c.name}</h2>
-                <div className="my-3 border-t-2 border-black" />
-                <div className="flex items-center justify-between font-mono text-xs">
-                  <span>{members} members</span>
-                  <span className="font-bold uppercase">View →</span>
-                </div>
-              </Link>
-            );
-          })}
+          ) : (
+            filteredClubs.map((c, index) => {
+              const members = Array.isArray(c.club_members) ? c.club_members.length : 0;
+              return (
+                <Link
+                  key={c.slug}
+                  to="/clubs/$slug"
+                  params={{ slug: c.slug }}
+                  className="neu-border neu-press block bg-white p-6"
+                >
+                  <div
+                    className={`neu-border ${colors[index % colors.length]} mb-4 inline-block px-3 py-1 font-mono text-xs font-bold uppercase`}
+                  >
+                    Club
+                  </div>
+                  <h2 className="text-2xl font-bold">{c.name}</h2>
+                  <div className="my-3 border-t-2 border-black" />
+                  <div className="flex items-center justify-between font-mono text-xs">
+                    <span>{members} members</span>
+                    <span className="font-bold uppercase">View →</span>
+                  </div>
+                </Link>
+              );
+            })
+          )}
         </div>
       </section>
     </SiteShell>

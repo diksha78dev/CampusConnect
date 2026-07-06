@@ -9,7 +9,11 @@ export const Route = createFileRoute("/certificates")({
   head: () => ({
     meta: [
       { title: "Certificates — CampusConnect" },
-      { name: "description", content: "Verifiable certificates for the events, workshops, and hackathons you've attended." },
+      {
+        name: "description",
+        content:
+          "Verifiable certificates for the events, workshops, and hackathons you've attended.",
+      },
     ],
   }),
   component: Certificates,
@@ -28,10 +32,12 @@ function Certificates() {
     queryFn: async () => {
       const { data } = await supabase
         .from("certificates")
-        .select(`
+        .select(
+          `
           id, certificate_url, issued_at,
           events (title, clubs (name))
-        `)
+        `,
+        )
         .eq("user_id", user?.id)
         .order("issued_at", { ascending: false });
       return data || [];
@@ -47,7 +53,9 @@ function Certificates() {
         <div className="mx-auto max-w-7xl">
           <p className="eyebrow font-bold">Your certificates · {certs.length} issued</p>
           <h1 className="mt-2 text-4xl font-bold md:text-6xl">Proof of work.</h1>
-          <p className="mt-4 max-w-2xl font-mono text-sm">Every certificate is signed and verifiable at a public URL. Share them anywhere.</p>
+          <p className="mt-4 max-w-2xl font-mono text-sm">
+            Every certificate is signed and verifiable at a public URL. Share them anywhere.
+          </p>
         </div>
       </section>
       <section className="bg-cream px-4 py-12 md:px-6">
@@ -55,52 +63,64 @@ function Certificates() {
           {isLoading ? (
             <div className="col-span-full font-mono py-10">Loading certificates...</div>
           ) : certs.length === 0 ? (
-            <div className="col-span-full font-mono py-10 text-gray-500">You don't have any certificates yet. Attend events to earn them!</div>
-          ) : certs.map((c, index) => {
-            const event = Array.isArray(c.events) ? c.events[0] : c.events;
-            const club = event && !Array.isArray(event.clubs) ? event.clubs : null;
-            
-            return (
-              <article key={c.id} className="neu-border neu-press bg-white p-6">
-                <div className={`neu-border ${colors[index % colors.length]} mb-4 flex items-center justify-between px-4 py-6`}>
-                  <div>
-                    <p className="eyebrow font-bold">Certificate</p>
-                    <p className="mt-1 font-display text-2xl font-bold">{event?.title || "Unknown Event"}</p>
-                  </div>
-                  <span className="font-mono text-xs font-bold">
-                    {c.issued_at ? new Date(c.issued_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase() : "N/A"}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between font-mono text-xs">
-                  <div>
-                    <p className="font-bold uppercase">Issued by</p>
-                    <p>{club?.name || "CampusConnect"}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold uppercase">ID</p>
-                    <p className="truncate max-w-[100px]">{c.id.split('-')[0]}</p>
-                  </div>
-                </div>
-                <div className="mt-5 flex gap-3">
-                  <button 
-                    onClick={() => window.open(c.certificate_url, '_blank')}
-                    className="neu-border neu-press flex-1 bg-black px-3 py-2 font-mono text-xs font-bold uppercase text-cream"
+            <div className="col-span-full font-mono py-10 text-gray-500">
+              You don't have any certificates yet. Attend events to earn them!
+            </div>
+          ) : (
+            certs.map((c, index) => {
+              const event = Array.isArray(c.events) ? c.events[0] : c.events;
+              const club = event && !Array.isArray(event.clubs) ? event.clubs : null;
+
+              return (
+                <article key={c.id} className="neu-border neu-press bg-white p-6">
+                  <div
+                    className={`neu-border ${colors[index % colors.length]} mb-4 flex items-center justify-between px-4 py-6`}
                   >
-                    View PDF
-                  </button>
-                  <button 
-                    onClick={() => {
-                      navigator.clipboard.writeText(c.certificate_url);
-                      alert("Link copied to clipboard!");
-                    }}
-                    className="neu-border neu-press flex-1 bg-white px-3 py-2 font-mono text-xs font-bold uppercase"
-                  >
-                    Copy link
-                  </button>
-                </div>
-              </article>
-            );
-          })}
+                    <div>
+                      <p className="eyebrow font-bold">Certificate</p>
+                      <p className="mt-1 font-display text-2xl font-bold">
+                        {event?.title || "Unknown Event"}
+                      </p>
+                    </div>
+                    <span className="font-mono text-xs font-bold">
+                      {c.issued_at
+                        ? new Date(c.issued_at)
+                            .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            .toUpperCase()
+                        : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between font-mono text-xs">
+                    <div>
+                      <p className="font-bold uppercase">Issued by</p>
+                      <p>{club?.name || "CampusConnect"}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold uppercase">ID</p>
+                      <p className="truncate max-w-[100px]">{c.id.split("-")[0]}</p>
+                    </div>
+                  </div>
+                  <div className="mt-5 flex gap-3">
+                    <button
+                      onClick={() => window.open(c.certificate_url, "_blank")}
+                      className="neu-border neu-press flex-1 bg-black px-3 py-2 font-mono text-xs font-bold uppercase text-cream"
+                    >
+                      View PDF
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(c.certificate_url);
+                        alert("Link copied to clipboard!");
+                      }}
+                      className="neu-border neu-press flex-1 bg-white px-3 py-2 font-mono text-xs font-bold uppercase"
+                    >
+                      Copy link
+                    </button>
+                  </div>
+                </article>
+              );
+            })
+          )}
         </div>
       </section>
     </SiteShell>
