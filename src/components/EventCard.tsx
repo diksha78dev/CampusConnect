@@ -192,20 +192,32 @@ export function EventCard({ event, index, user, onRsvpToggle, isRsvpPending }: E
           {isRsvpPending ? "Updating..." : hasRsvpd ? "RSVP'd ✓" : "RSVP →"}
         </button>
       ) : null}
-
-      <ConfirmModal
-        open={confirmOpen}
-        title="Cancel RSVP?"
-        description="Are you sure you want to cancel your RSVP? Your reservation for this event will be removed."
-        confirmText="Cancel RSVP"
-        cancelText="Keep RSVP"
-        onCancel={() => setConfirmOpen(false)}
-        onConfirm={() => {
-          resetForm();
-          onRsvpToggle(event.id, true);
-          setConfirmOpen(false);
-        }}
-      />
+      <div className="mt-4 flex gap-2">
+        <a
+          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="neu-border px-3 py-2 font-mono text-xs font-bold uppercase hover:bg-[#1DA1F2] hover:text-white transition-colors"
+        >
+          Twitter
+        </a>
+        <a
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="neu-border px-3 py-2 font-mono text-xs font-bold uppercase hover:bg-[#0A66C2] hover:text-white transition-colors"
+        >
+          LinkedIn
+        </a>
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(`Check out this event: ${event.title} - ${window.location.href}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="neu-border px-3 py-2 font-mono text-xs font-bold uppercase hover:bg-[#25D366] hover:text-white transition-colors"
+        >
+          WhatsApp
+        </a>
+      </div>
     </article>
   );
 }
