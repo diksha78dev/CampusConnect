@@ -31,12 +31,13 @@ export default function EventDetailsPage() {
     queryKey: ["event", eventId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("events")
+        .from("club_analytics_view")
         .select(
           `
           id, title, description, event_date, start_date, end_date, location, banner_url,
           clubs (name, slug),
-          event_rsvps (id, user_id)
+          event_rsvps (id, user_id),
+          attendee_count
         `,
         )
         .eq("id", eventId)
@@ -88,6 +89,7 @@ export default function EventDetailsPage() {
               },
             ],
             event_rsvps: eventId === "mock-1" ? [{ id: "rsvp-1", user_id: "user-1" }] : [],
+            attendee_count: eventId === "mock-1" ? 1 : 0,
           };
         }
         throw error;
@@ -273,7 +275,7 @@ export default function EventDetailsPage() {
               <Users className="mt-1 h-5 w-5 shrink-0 text-black/60" />
               <div>
                 <dt className="font-mono text-xs font-bold uppercase text-black/50">Attendees</dt>
-                <dd className="mt-1 text-sm font-bold">{rsvps.length} RSVP&apos;d</dd>
+                <dd className="mt-1 text-sm font-bold">{event.attendee_count ?? 0} RSVP&apos;d</dd>
               </div>
             </div>
           </div>
