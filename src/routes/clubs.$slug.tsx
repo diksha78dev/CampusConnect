@@ -236,7 +236,10 @@ export default function ClubProfile() {
                               {m.name}
                             </p>
                             {m.handle && (
-                              <p className="text-xs text-gray-500 truncate" title={`@${m.handle}`}>
+                              <p
+                                className="text-xs text-gray-500 dark:text-gray-300 truncate"
+                                title={`@${m.handle}`}
+                              >
                                 @{m.handle}
                               </p>
                             )}
