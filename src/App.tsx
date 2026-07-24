@@ -34,6 +34,7 @@ import ResetPassword from "./routes/reset-password";
 import Settings from "./routes/settings";
 import VerifyEmail from "./routes/verify-email";
 import PendingClubsAdmin from "./routes/admin.clubs.pending";
+import AdminReportsPage from "./routes/admin.reports";
 
 // ---------------------------------------------------------------------------
 // Micro-frontend: Events remote (loaded dynamically from Module Federation)
@@ -158,6 +159,7 @@ const router = createBrowserRouter(
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/admin/clubs/pending" element={<PendingClubsAdmin />} />
+        <Route path="/admin/reports" element={<AdminReportsPage />} />
       </Route>
     </Route>,
   ),
