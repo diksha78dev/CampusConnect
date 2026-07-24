@@ -16,6 +16,7 @@ Provide a brief summary of the documentation update.
 Specify the file or section that needs updating.
 
 Examples:
+
 - README.md
 - CONTRIBUTING.md
 - docs/setup.md
