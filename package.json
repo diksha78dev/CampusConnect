@@ -18,6 +18,7 @@
     "test": "vitest run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
     "test:e2e": "playwright test",
+    "test:edge": "deno test --allow-env --allow-net --allow-read supabase/functions",
     "test:cypress": "cypress run",
     "test:cypress:open": "cypress open",
     "github:update-labels": "npx tsx scripts/update-labels.ts",
